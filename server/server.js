@@ -14,7 +14,18 @@ app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
   console.log('A new user has connected.');
-  
+
+  socket.emit('newMessage', {
+    from: 'Admin',
+    text: 'Welcome to the chat app.'
+  });
+
+  socket.broadcast.emit('newMessage', {
+    from: 'Admin',
+    text: 'A new user has joined.',
+    createdAt: new Date().getTime()
+  });
+
   socket.on('createMessage', (message) => {
     io.emit('newMessage', {
       from: message.from,
@@ -23,7 +34,7 @@ io.on('connection', (socket) => {
     });
   });
 
-//If connection is closed
+//if connection is closed
   socket.on('disconnect', () => {
     console.log('User was disconnected.');
   })
