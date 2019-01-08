@@ -14,14 +14,13 @@ app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
   console.log('A new user has connected.');
-
-  socket.emit('newMessage', {
-    from: 'Payton',
-    text: 'Message emit test server'
-  });
-
+  
   socket.on('createMessage', (message) => {
-    console.log('createMessage', message);
+    io.emit('newMessage', {
+      from: message.from,
+      text: message.text,
+      createdAt: new Date().getTime()
+    });
   });
 
 //If connection is closed
