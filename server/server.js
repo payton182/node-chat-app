@@ -34,24 +34,34 @@ io.on('connection', (socket) => {
     callback();
   });
 
+
+// create message types
+
   socket.on('createMessage', (message, callback) => {
-    io.emit('newMessage', generateMessage(message.from, message.text));
+    var user = users.getUser(socket.id);
+
+    if (user && isRealString(message.text)) {
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+    }
+
     callback();
   });
 
   socket.on('createLocationMessage', (coords) => {
-    io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+    var user = users.getUser(socket.id);
+
+    io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
   });
 
-//if connection is closed
+
+// if connection is closed
+
   socket.on('disconnect', () => {
     let user = users.removeUser(socket.id);
     if (user) {
       io.to(user.room).emit('updateUserList', users.getUserList(user.room));
       io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
     }
-
-
     console.log('User was disconnected.');
   })
 });
