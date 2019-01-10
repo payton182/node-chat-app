@@ -45,6 +45,13 @@ io.on('connection', (socket) => {
 
 //if connection is closed
   socket.on('disconnect', () => {
+    let user = users.removeUser(socket.id);
+    if (user) {
+      io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+      io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
+    }
+
+
     console.log('User was disconnected.');
   })
 });
